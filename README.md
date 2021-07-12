@@ -12,21 +12,20 @@ git clone https://github.com/Scource/TaskApp
 cd TaskApp
 ```
 
-#### Docker setup
-
 - From root application folder run `docker compose up`
-- Application should be up and running at `http://localhost:8000`
-
-#### PostgresDB setup
 
 - Migrate tables to new DB
-  `docker-compose exec backend python manage.py migrate`
+  `docker-compose exec api python manage.py migrate`
 
 - Create first user in new DB
-  `docker-compose exec backend python manage.py createsuperuser`
+  `docker-compose exec api python manage.py createsuperuser`
+  
+- Application should be up and running at `http://localhost:8000`
+
+
   
 ## First Data Configuration
-At first database is empty and all data must be provided by User:
+At first database is empty and all data must be provided by admin:
 - Log in to django-admin `http://localhost:8000/admin`
 - In `Thumbnail sizes` table create object and set width and height
 - In `Plans` table create new object and connect Plan with Thumbnail size -  it's possible to add multiple sizes to the same plan
