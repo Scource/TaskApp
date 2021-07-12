@@ -4,10 +4,12 @@ from rest_framework.response import Response
 from datetime import datetime, timedelta
 from .models import *
 from .serializers import *
-from django.shortcuts import redirect
+from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from .services import create_tumbnail
 from dateutil import parser
+from .permissions import *
+from rest_framework.permissions import IsAuthenticated
 
 
 class Index(ViewSet):
@@ -25,6 +27,7 @@ class Index(ViewSet):
 class FileUploadView(ViewSet):
     '''View for image upload'''
     serializer_class = FileListSerializer
+    permission_classes = [IsAuthenticated]
 
     def list(self, request):
         return Response("Upload your image")
@@ -44,6 +47,7 @@ class FileUploadView(ViewSet):
 
 class FileListView(ViewSet):
     '''View with users listed images/thumbnails'''
+    permission_classes = [IsAuthenticated]
     serializer_class = UploadedFileSerializer
 
     def list(self, request):
@@ -65,11 +69,12 @@ class FileListView(ViewSet):
 
 class CreateExpiringLinkView(ViewSet):
     '''View for creating exipiring links'''
+    permission_classes = [IsAuthenticated, HasExpireLinkCreateAccess]
     serializer_class = ExpireLinkSerializer
 
     def create(self, request):
         serializer = ExpireLinkSerializer(
-            data=request.data)
+            data=request.data, context={'request': request})
         sec = serializer.initial_data['delayed_time']
         if serializer.is_valid():
             saved_expiring_properties = serializer.save(generated=datetime.now(),
@@ -80,6 +85,8 @@ class CreateExpiringLinkView(ViewSet):
 
 class GetExpiringLinkView(ViewSet):
     '''View with expiring link data'''
+    permission_classes = [IsAuthenticated,
+                          HasExpireLinkCreateAccess, HasExpireLinkAccess]
     serializer_class = ExpireLinkSerializer
 
     def retrieve(self, request, pk):
